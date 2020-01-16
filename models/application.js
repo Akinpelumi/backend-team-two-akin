@@ -34,6 +34,8 @@ const applicationSchema = new Schema({
         type: Number,
         require: true
     },
+    userId: {type: mongoose.Schema.Types.ObjectId, required: true},
+    score: {type: Number},
     file: {}, //This is where I intend setting the upload
     createdAt: {
         type: Date,

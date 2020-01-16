@@ -15,9 +15,7 @@ var usersRouter = require("./routes/users");
 var adminRouter = require("./routes/adminRoute")
 
 var app = express();
-mongoose.connect(process.env.DATABASE_URL, {
-  useNewUrlParser: true
-});
+mongoose.connect(process.env.DATABASE_URL, {useNewUrlParser: true});
 
 app.use(cors());
 app.use(logger("dev"));

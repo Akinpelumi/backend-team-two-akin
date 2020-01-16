@@ -8,15 +8,17 @@ const authorization = require("../middleware/token");
 router.post("/signup", adminCon.adminReg);
 router.post("/login", adminCon.adminLogin);
 
-router.post("/new", appCreate.ApplicantEntry);
-router.get("/all", appCreate.ApplicantDisplay);
-router.get("/:id", appCreate.ApplicantDisplayOne);
-router.put("/edit/:id", appCreate.ApplicantUpdate);
-router.delete("/del/:id", appCreate.ApplicantDelete)
+router.post("/new", authorization, appCreate.ApplicantEntry);
+router.get("/all", authorization, appCreate.ApplicantDisplay);
+router.get("/one/:id", authorization, appCreate.ApplicantDisplayOne);
+router.put("/edit/:id", authorization, appCreate.ApplicantUpdate);
+router.delete("/del/:id",  authorization, appCreate.ApplicantDelete)
 
-router.post("/test", assCreate.AssessmentEntry);
-router.put("/test/:id", assCreate.AssessmentUpdate);
-router.get("/all-test", assCreate.AssessmentDisplay);
-router.get("/one-test", assCreate.AssessmentDisplayOne);
+router.post("/test", authorization, assCreate.AssessmentEntry);
+router.put("/test/:id", authorization, assCreate.AssessmentUpdate);
+router.get("/all-test", authorization, assCreate.AssessmentDisplay);
+router.get("/one-test/:id", authorization, assCreate.AssessmentDisplayOne);
+router.delete("/del-test/:id", authorization, assCreate.AssessmentDelete);
+
 
 module.exports = router;

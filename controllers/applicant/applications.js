@@ -1,16 +1,9 @@
 const Application = require("../../models/application");
 const User = require("../../models/user");
 var nodemailer = require("nodemailer");
+var smtpTransport = require('nodemailer-smtp-transport');
 const morgan = require("morgan");
 var cloudinary = require("cloudinary").v2;
-
-var transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: `${process.env.EMAIL}`,
-    password: `${process.env.PASSWORD}`
-  }
-});
 
 // New Application Entry
 const newApp = async (req, res, next) => {
@@ -25,10 +18,10 @@ const newApp = async (req, res, next) => {
       courseOfStudy,
       cgpa
     } = req.body;
-    const file = req.files.file;
+    const upload = req.files.upload;
 
     // const filetypes = /pdf|doc|docx/;
-    // const extname = filetypes.test(upload.extname(upload.originalname).toLowerCase());
+    // const extname = filetypes.test(path.extname(upload.originalname).toLowerCase());
     // const mimetype = filetypes.test(upload.mimetype);
     // if (extname && mimetype) {
     //   return cb(null, true);
@@ -36,7 +29,7 @@ const newApp = async (req, res, next) => {
     //   cb('Error: Put in the required format')
     // }
 
-    file.mv("public/cv/" + file.name, function (err) {
+    upload.mv("public/cv/" + upload.name, function (err) {
       if (err) {
         console.log("Couldn't upload");
         console.log(err);
@@ -63,35 +56,40 @@ const newApp = async (req, res, next) => {
         school,
         courseOfStudy,
         cgpa,
-        file
+        upload
       });
-
       await newEntry.save();
-      const content = `
-        <p>Dear ${firstName},</p>
-        <p>Thank you for your interest in a career opportunity at Enyata.</p>
-        <p> We have received and we are currently reviewing your application.</p>
-        <p> Thank you for taking the time to fill in the application form. We encourage you to visit our website at <a href='enyata.com'>enyata.com</a> for more information.</p>
-        <br>
-        <p>Enyata Recruitment Team</p>`;
 
-      var message = {
-        from: '"Enyata Software Engineering" <anitaogechi9@gmail.com>',
-        to: `${email}`,
-        subject: "Your application: Software Developer Academy",
-        html: content
+
+      var transporter = nodemailer.createTransport(smtpTransport({
+        service: 'gmail',
+        host: 'smtp.gmail.com',
+        auth: {
+          user: 'akintundeakinpelumi@gmail.com',
+          pass: '2414adec'
+        }
+      }));
+
+      var mailOptions = {
+        from: 'akintundeakinpelumi@gmail.com',
+        to: email,
+        subject: 'Your application: Software Developer Academy',
+        text: `Thank you for your interest in a career opportunity at Enyata. We have received and we are currently reviewing your application. Thank you for taking the time to fill in the application form. We encourage you to visit our website at www.enyata.com for more information.
+              
+              
+        Enyata Recruitment Team`
       };
 
-      transporter.sendMail(message, function (error, info) {
+      transporter.sendMail(mailOptions, function(error, info){
         if (error) {
-          console.log(error);
+          return  res.status(400).json({
+            message:  'Application not sent'
+          })
         } else {
-          console.log("Email sent: " + info.response);
+          return  res.status(200).json({
+            message:  'Application sent! Check your mail to confirm.'
+          })
         }
-      });
-      return res.status(201).json({
-        message: "Thank you for submitting your application, we will get back to you",
-        newEntry
       });
     }
   } catch (err) {
